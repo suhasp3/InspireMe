@@ -132,30 +132,27 @@ $(document).ready(function () {
     const $deleteButton = $("<button>").text("Delete");
     $deleteButton.on("click", function () {
       $li.remove();
-      deleteTask(task); 
+      deleteTask(task);
     });
 
     if (task.completed) {
-      $taskText.addClass("completed"); 
+      $taskText.addClass("completed");
     }
 
-    // Append task text and buttons to list item
     $li.append($taskText, $completeButton, $deleteButton);
     $taskList.append($li);
   }
 
-  // Save tasks to localStorage
   function saveTasks() {
     const tasks = [];
     $taskList.find("li").each(function () {
-      const taskText = $(this).find("span").text(); // Get text from span
-      const completed = $(this).find("span").hasClass("completed"); // Check if span has completed class
+      const taskText = $(this).find("span").text();
+      const completed = $(this).find("span").hasClass("completed");
       tasks.push({ text: taskText, completed });
     });
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }
 
-  // Delete a task
   function deleteTask(taskToDelete) {
     const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
     const updatedTasks = tasks.filter(
@@ -164,17 +161,15 @@ $(document).ready(function () {
     localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   }
 
-  // Add task event listener
   $addTaskButton.on("click", function () {
     const taskText = $taskInput.val().trim();
     if (taskText) {
       const task = { text: taskText, completed: false };
       addTaskToDOM(task);
       saveTasks();
-      $taskInput.val(""); // Clear input field
+      $taskInput.val("");
     }
   });
 
-  // Load tasks when the page is loaded
   loadTasks();
 });
