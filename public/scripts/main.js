@@ -3,7 +3,8 @@ $(document).ready(function() {
     const $countdownDisplay = $("#countdown");
     const $startPomodoroButton = $("#startPomodoro");
     const $nextSessionButton = $("#nextSessionButton");
-    const $pauseButton = $("#pauseButton");
+    const $pauseButton = $("<button>").text("Pause").attr("id", "pauseButton").hide(); // Create Pause Button
+    $startPomodoroButton.after($pauseButton); // Add the Pause button after Start Pomodoro
     const $workDurationInput = $("#work-duration");
     const $breakDurationInput = $("#break-duration");
     const $timerSound = $("#timerSound")[0]; // jQuery returns an array-like object, so we need [0] to access the audio element
@@ -19,6 +20,7 @@ $(document).ready(function() {
     let timer;
     let timeLeft; // Store the time left
 
+    // ---- Timer Functions ----
     // Function to start the countdown
     function startCountdown(duration) {
         timeLeft = duration;
@@ -130,29 +132,34 @@ $(document).ready(function() {
 
     // Add a task to the DOM
     function addTaskToDOM(task) {
-        const $li = $("<li>").text(task.text);
+        const $li = $("<li>");
+
+        // Create a span for task text
+        const $taskText = $("<span>").text(task.text);
 
         // Add complete button
         const $completeButton = $("<button>").text(task.completed ? "Undo" : "Complete");
         $completeButton.on("click", function() {
-            task.completed = !task.completed;
-            saveTasks();
-            $li.toggleClass("completed");
-            $completeButton.text(task.completed ? "Undo" : "Complete");
+            task.completed = !task.completed; // Toggle task completion state
+            saveTasks(); // Save the updated tasks to localStorage
+            $taskText.toggleClass("completed"); // Add or remove completed class (strikethrough)
+            $completeButton.text(task.completed ? "Undo" : "Complete"); // Change button text
         });
 
         // Add delete button
         const $deleteButton = $("<button>").text("Delete");
         $deleteButton.on("click", function() {
-            $li.remove();
-            deleteTask(task);
+            $li.remove(); // Remove the task from the DOM
+            deleteTask(task); // Remove the task from localStorage
         });
 
+        // Apply "completed" class if the task is already marked as completed
         if (task.completed) {
-            $li.addClass("completed");
+            $taskText.addClass("completed"); // Visually show completed tasks with strikethrough
         }
 
-        $li.append($completeButton, $deleteButton);
+        // Append task text and buttons to list item
+        $li.append($taskText, $completeButton, $deleteButton);
         $taskList.append($li);
     }
 
@@ -160,8 +167,8 @@ $(document).ready(function() {
     function saveTasks() {
         const tasks = [];
         $taskList.find("li").each(function() {
-            const taskText = $(this).contents().get(0).nodeValue;
-            const completed = $(this).hasClass("completed");
+            const taskText = $(this).find("span").text(); // Get text from span
+            const completed = $(this).find("span").hasClass("completed"); // Check if span has completed class
             tasks.push({ text: taskText, completed });
         });
         localStorage.setItem("tasks", JSON.stringify(tasks));

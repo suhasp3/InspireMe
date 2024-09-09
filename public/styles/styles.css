@@ -12,18 +12,27 @@ body {
   padding: 50px;
 }
 
-/* Container styling */
+/* Main container styling */
 .container {
   display: flex;
-  flex-direction: column; /* Stack everything vertically */
-  justify-content: center;
-  align-items: center;
-  max-width: 800px; /* Adjust width if needed */
+  flex-direction: row; /* Align items side by side */
+  justify-content: space-between; /* Space between timer/quote and To-Do list */
+  align-items: flex-start; /* Align items to the top */
+  max-width: 1200px; /* Increase width to accommodate both sections */
   margin: auto;
   background-color: #132a3d;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Timer and quote section styling */
+.timer-quote-section {
+  display: flex;
+  flex-direction: column; /* Stack timer and quote vertically */
+  justify-content: center;
+  align-items: center;
+  width: 60%; /* Give more space to the timer and quote section */
 }
 
 /* Timer styling */
@@ -92,7 +101,7 @@ button:hover {
 
 /* To-Do List Section */
 .todo-list-section {
-  width: 45%; /* Make the to-do list section take up the other half of the space */
+  width: 35%; /* Reduce the width of the To-Do List */
   background-color: #132a3d;
   padding: 20px;
   border-radius: 8px;
@@ -155,4 +164,19 @@ button:hover {
 
 #taskList button:hover {
   background-color: #005f87;
+}
+
+.button-container button {
+  padding: 10px 20px;
+  background-color: #00aeff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px; /* Add space between Start and Pause buttons */
+}
+
+#taskList .completed {
+  text-decoration: line-through;
+  color: #888; /* Optional: Dim completed task */
 }

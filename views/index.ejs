@@ -1,57 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InspireMe - Pomodoro Timer & To-Do List</title>
-    <link rel="stylesheet" href="/styles/styles.css" />
-  </head>
-  <body>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
     <div class="container">
-      <h1>InspireMe - Pomodoro Timer</h1>
+        <!-- Timer and Quote Section -->
+        <div class="timer-quote-section">
+            <h1>InspireMe - Pomodoro Timer</h1>
 
-      <!-- timer -->
-      <div class="timer">
-        <p>
-          Work Session:
-          <input id="work-duration" type="number" value="25" min="1" max="60" />
-          minutes
-        </p>
-        <p>
-          Break Session:
-          <input id="break-duration" type="number" value="5" min="1" max="30" />
-          minutes
-        </p>
-        <p>Time Left: <span id="countdown">--:--</span></p>
-      </div>
+            <div class="quote-box">
+                <h3>Motivational Quote</h3>
+                <p>"<%= currentQuote %>"</p>
+            </div>
 
-      <!--quotes -->
-      <div class="quote-box">
-        <h3>Motivational Quote</h3>
-        <p>"<%= currentQuote %>"</p>
-      </div>
+            <!-- Timer section -->
+            <div class="timer">
+                <p>Work Session: <input id="work-duration" type="number" value="25" min="1" max="60"> minutes</p>
+                <p>Break Session: <input id="break-duration" type="number" value="5" min="1" max="30"> minutes</p>
+                <p>Time Left: <span id="countdown">--:--</span></p>
+            </div>
 
-      <button id="startPomodoro">Start Pomodoro</button>
+            <!-- Button container for Start and Pause buttons -->
+            <div class="button-container">
+                <button id="startPomodoro">Start Pomodoro</button>
+                <button id="pauseButton" style="display: none;">Pause</button>
+            </div>
 
-      <button id="nextSessionButton" style="display: none">
-        Start Next Session
-      </button>
-      <button id="pauseButton" style="display: none">Pause</button>
+        </div>
 
-      <div class="todo-list-section">
-        <h2>To-Do List</h2>
+        <!-- To-Do List Section -->
+        <div class="todo-list-section">
+            <h2>To-Do List</h2>
+            <input type="text" id="taskInput" placeholder="Add a new task">
+            <button id="addTaskButton">Add Task</button>
+            <ul id="taskList"></ul>
+        </div>
 
-        <input type="text" id="taskInput" placeholder="Add a new task" />
-        <button id="addTaskButton">Add Task</button>
+        <audio id="timerSound" src="/sounds/timer-complete.mp3"></audio>
 
-        <ul id="taskList"></ul>
-      </div>
-
-      <audio id="timerSound" src="/sounds/timer-complete.mp3"></audio>
-
-      <!--jQuery/javascript link-->
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-      <script src="/scripts/main.js"></script>
+        <!-- jQuery / Javascript -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="/scripts/main.js"></script>
     </div>
-  </body>
+</body>
 </html>
