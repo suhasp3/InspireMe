@@ -6,20 +6,16 @@ import fetch from "node-fetch";
 const app = express();
 const port = 3000;
 
-// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
-// Variables for Pomodoro timer
-let workTime = 25 * 60; // 25 minutes in seconds
-let breakTime = 5 * 60; // 5 minutes in seconds
+let workTime = 25 * 60;
+let breakTime = 5 * 60;
 let currentQuote = "";
 
-// API Key for a quote service (replace with your key)
 const QUOTES_API = "https://zenquotes.io/api/random";
 
-// Fetch a quote from the API
 async function fetchQuote() {
   try {
     const response = await fetch(QUOTES_API);
@@ -31,17 +27,15 @@ async function fetchQuote() {
   }
 }
 
-// Homepage route to display Pomodoro timer and quote
 app.get("/", async (req, res) => {
   await fetchQuote();
   res.render("index", {
-    workTime: Math.floor(workTime / 60), // Send work time in minutes
-    breakTime: Math.floor(breakTime / 60), // Send break time in minutes
+    workTime: Math.floor(workTime / 60),
+    breakTime: Math.floor(breakTime / 60),
     currentQuote,
   });
 });
 
-// Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
