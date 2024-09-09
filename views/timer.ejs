@@ -3,13 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Timer</title>
+    <title>InspireMe - Pomodoro Timer & To-Do List</title>
     <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Pomodoro Timer</h1>
-        <p>Time Left: <span id="timerValue"><%= timerValue %> minutes</span></p>
+        <h1>InspireMe - Pomodoro Timer</h1>
+
+        <!-- Timer section -->
+        <div class="timer">
+            <p>Work Session: <input id="work-duration" type="number" value="25" min="1" max="60"> minutes</p>
+            <p>Break Session: <input id="break-duration" type="number" value="5" min="1" max="30"> minutes</p>
+            <p>Time Left: <span id="countdown">--:--</span></p>
+        </div>
+
+        <!-- Inspirational quote -->
+        <div class="quote-box">
+            <h3>Motivational Quote</h3>
+            <p>"<%= currentQuote %>"</p>
+        </div>
+
+        <!-- Start Pomodoro / Cancel button -->
+        <button id="startPomodoro">Start Pomodoro</button>
+
+        <!-- Button to confirm starting the next session, hidden by default -->
+        <button id="nextSessionButton" style="display: none;">Start Next Session</button>
+
+        <!-- Pause/Resume button, hidden by default -->
+        <button id="pauseButton" style="display: none;">Pause</button>
+
+        <!-- To-Do List Section -->
+        <div class="todo-list-section">
+            <h2>To-Do List</h2>
+
+            <!-- Input to add a new task -->
+            <input type="text" id="taskInput" placeholder="Add a new task">
+            <button id="addTaskButton">Add Task</button>
+
+            <!-- List to display tasks -->
+            <ul id="taskList"></ul>
+        </div>
+
+        <!-- Audio for the timer completion sound -->
+        <audio id="timerSound" src="/sounds/timer-complete.mp3"></audio>
     </div>
+
+    <script>
+        // Get elements from the DOM
+        const countdownDisplay = document.getElementById("countdown");
+        const startPomodoroButton = document.getElementById("startPomodoro");
+        const nextSessionButton = document.getElementById("nextSessionButton");
+        const pauseButton = document.getElementById("pauseButton");
+        const workDurationInput = document.getElementById("work-duration");
+        const breakDurationInput = document.getElementById("break-duration");
+        const timerSound = document.getElementById("timerSound"); // Get the audio element
+
+        // To-Do List elements
+        const taskInput = document.getElementById("taskInput");
+        const addTaskButton = document.getElementById("addTaskButton");
+        const taskList = document.getElementById("taskList");
+
+        let isRunning = false;
+        let isBreak = false; // Track if it's a break or work session
+        let isPaused = false; // Track if the timer is paused
+        let timer;
+        let timeLeft; // Store the time left
+
+        // Function to start the countdown
+        function startCountdown(duration) {
+            timeLeft = duration;
+            pauseButton.style.display = "inline"; // Show the Pause button
+            nextSessionButton.style.display = "none"; // Hide the Next Session button
+            startPomodoroButton.textContent = "Cancel"; // Change Start button to Cancel
+            isRunning = true; // Mark as running
+
+            timer = setInterval(() => {
+                if (!isPaused) {
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+
+                    // Format time display
+                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                    // Update the countdown display
+                    countdownDisplay.textContent = `${minutes}:${seconds}`;
+
+                    // Decrement time
+                    timeLeft--;
+
+                    // When the timer reaches 0, stop the timer, play sound and show alert
+                    if (timeLeft < 0) {
+                        clearInterval(timer);
+                        timerSound.play(); // Play the sound when timer ends
+
+                        if (isBreak) {
+                            setTimeout(() => {
+                                if (confirm("Break over! Click 'OK' to begin your next work session.")) {
+                                    timerSound.pause(); // Stop the sound when alert is dismissed
+                                    nextSessionButton.textContent = "Start Work Session";
+                                    nextSessionButton.style.display = "inline"; // Show the Next Session button
+                                    pauseButton.style.display = "none"; // Hide the Pause button
+                                    startPomodoroButton.textContent = "Start Pomodoro"; // Change back to Start Pomodoro
+                                    isRunning = false; // Reset running state
+                                }
+                            }, 0); // Ensure the sound plays before the alert
+                        } else {
+                            setTimeout(() => {
+                                if (confirm("Work session over! Click 'OK' to begin your break.")) {
+                                    timerSound.pause(); // Stop the sound when alert is dismissed
+                                    nextSessionButton.textContent = "Start Break Session";
+                                    nextSessionButton.style.display = "inline"; // Show the Next Session button
+                                    pauseButton.style.display = "none"; // Hide the Pause button
+                                    startPomodoroButton.textContent = "Start Pomodoro"; // Change back to Start Pomodoro
+                                    isRunning = false; // Reset running state
+                                }
+                            }, 0); // Ensure the sound plays before the alert
+                        }
+                    }
+                }
+            }, 1000);
+        }
+
+        // Function to confirm starting the next session (work or break)
+        function confirmNextSession() {
+            if (isBreak) {
+                isBreak = false; // Switch back to work session
+                let workDuration = parseInt(workDurationInput.value) * 60; // Convert to seconds
+                startCountdown(workDuration); // Start the next work session
+            } else {
+                isBreak = true; // Switch to break session
+                let breakDuration = parseInt(breakDurationInput.value) * 60; // Convert to seconds
+                startCountdown(breakDuration); // Start the break session
+            }
+
+            nextSessionButton.style.display = "none"; // Hide the button after starting the session
+        }
+
+        // Event listener to start or cancel the Pomodoro when button is clicked
+        startPomodoroButton.addEventListener("click", () => {
+            if (isRunning) {
+                // If it's running, cancel the current session
+                clearInterval(timer); // Stop the timer
+                countdownDisplay.textContent = "--:--"; // Reset the countdown display
+                startPomodoroButton.textContent = "Start Pomodoro"; // Change back to Start Pomodoro
+                pauseButton.style.display = "none"; // Hide Pause button
+                isRunning = false; // Mark as not running
+                isPaused = false; // Reset pause state
+                pauseButton.textContent = "Pause"; // Reset Pause button text
+            } else {
+                // If it's not running, start the Pomodoro session
+                let workDuration = parseInt(workDurationInput.value) * 60; // Convert to seconds
+                startCountdown(workDuration);
+            }
+        });
+
+        // Event listener to start the next session when the user clicks the button
+        nextSessionButton.addEventListener("click", confirmNextSession);
+
+        // Event listener for Pause/Resume functionality
+        pauseButton.addEventListener("click", () => {
+            if (isPaused) {
+                pauseButton.textContent = "Pause"; // Change to "Pause"
+                isPaused = false; // Resume the countdown
+            } else {
+                pauseButton.textContent = "Resume"; // Change to "Resume"
+                isPaused = true; // Pause the countdown
+            }
+        });
+
+        // ---- To-Do List Functions ----
+        // Load tasks from localStorage
+        function loadTasks() {
+            const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            savedTasks.forEach(task => addTaskToDOM(task));
+        }
+
+        // Add a task to the DOM
+        function addTaskToDOM(task) {
+            const li = document.createElement("li");
+            li.textContent = task.text;
+
+            // Add complete button
+            const completeButton = document.createElement("button");
+            completeButton.textContent = task.completed ? "Undo" : "Complete";
+            completeButton.addEventListener("click", () => {
+                task.completed = !task.completed;
+                saveTasks();
+                li.classList.toggle("completed");
+                completeButton.textContent = task.completed ? "Undo" : "Complete";
+            });
+
+            // Add delete button
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.addEventListener("click", () => {
+                taskList.removeChild(li);
+                deleteTask(task);
+            });
+
+            li.appendChild(completeButton);
+            li.appendChild(deleteButton);
+
+            if (task.completed) {
+                li.classList.add("completed");
+            }
+
+            taskList.appendChild(li);
+        }
+
+        // Save tasks to localStorage
+        function saveTasks() {
+            const tasks = [];
+            taskList.querySelectorAll("li").forEach(li => {
+                const taskText = li.firstChild.textContent;
+                const completed = li.classList.contains("completed");
+                tasks.push({ text: taskText, completed });
+            });
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        // Delete a task
+        function deleteTask(taskToDelete) {
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            const updatedTasks = tasks.filter(task => task.text !== taskToDelete.text);
+            localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+        }
+
+        // Add task event listener
+        addTaskButton.addEventListener("click", () => {
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                const task = { text: taskText, completed: false };
+                addTaskToDOM(task);
+                saveTasks();
+                taskInput.value = ""; // Clear input field
+            }
+        });
+
+        // Load tasks when the page is loaded
+        loadTasks();
+    </script>
+
+    <style>
+        /* Completed task style */
+        .completed {
+            text-decoration: line-through;
+        }
+    </style>
 </body>
 </html>
